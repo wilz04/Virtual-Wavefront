@@ -1,0 +1,169 @@
+\documentclass[journal]{IEEEtran}
+% packages
+\usepackage[english,spanish]{babel}
+\usepackage[latin1]{inputenc}
+
+\usepackage{zed-csp}
+
+
+\begin{document}
+
+\title{}
+
+\author{Wilberth Castro Fuentes
+\\Programa de Maestría en Ciencias de la Computación
+\\Tecnológico de Costa Rica
+}
+
+\date{2 de noviembre 2016}
+
+
+\maketitle
+
+\section{Definitions}
+% no
+\begin{axdef}
+	P: \nat
+\end{axdef}
+% no
+\begin{axdef}
+	n: \nat; m: \nat
+\end{axdef}
+% ya
+\begin{zed}
+	N == 0..n; M == 0..m \\
+	W == 0..2m + n - 1; H == 0..m
+\end{zed}
+% ya
+\begin{schema}{Index}
+	i: W \\
+	j: H \\
+	
+	map_x: W \cross H \pfun N \\
+	map_y: W \cross H \pfun M
+\where
+	\forall x: W; y: H | x < m @ \\
+	\t1	map_x(x, y) = m - y - 1 \\
+	\t1	map_y(x, y) = x + y - m + 1 \\
+\also
+	\forall x: W; y: H | n + m \leq i @ \\
+	\t1 map_x(x, y) = 2n + m - x - 1 \\
+	\t1	map_y(x, y) = m - y - 1
+\end{schema}
+% 
+\begin{axdef}
+	f: N \cross M \fun \num
+\end{axdef}
+
+\begin{schema}{tBase}
+	x: N \\
+	y: M \\
+	t: N \cross M \fun \num
+\end{schema}
+
+\begin{schema}{Value}
+	Index \\
+	\delta: \num
+\end{schema}
+
+\section{Stage A}
+
+\begin{schema}{StageA_1}
+	Index \\
+	tBase
+\where
+	i < m
+\also
+	x = map_x(i, j) \\
+	y = map_y(i, j) \\
+	t(x, y) = f(x, y)
+\end{schema}
+
+% primeras abajo
+\begin{schema}{StageA_3}
+	Index \\
+	tBase
+\where
+	0 \leq i + j - n - m < \frac{m-1}{2} \\
+	i < n + m
+\also
+	x = i - m \\
+	y = j \\
+	t(x, y) = f(x, y)
+\end{schema}
+
+% primeras arriba
+\begin{schema}{StageA_4}
+	Index \\
+	tBase
+\where
+	0 \leq i + j - n - m < \frac{m-1}{2} \\
+	n + m \leq i
+\also
+	x = map_x(i, j) \\
+	y = map_y(i, j) \\
+	t(x, y) = f(x, y)
+\end{schema}
+
+\section{Stage B}
+
+\begin{schema}{StageB_1}
+	Value \\
+	StageA_1'
+\where
+	m \leq i < 2m - j
+\also
+	x' = x = i - m \\
+	y' = y = j \\
+	\delta = t'(x', y')
+\end{schema}
+
+\begin{schema}{StageB_2}
+	Value
+\where
+	2m - j \leq i < n + m - j
+\also
+	x = i - m \\
+	y = j \\
+	\delta = f(x, y)
+\end{schema}
+
+% segundas arriba
+\begin{schema}{StageB_3}
+	Value \\
+	StageA_3'
+\where
+	\frac{m-1}{2} \leq i + j - n - m \\
+	n + m \leq i
+\also
+	x' = x = map_x(i, j) \\
+	y' = y = map_y(i, j) \\
+	\delta = t'(x', y')
+\end{schema}
+
+% segundas abajo
+\begin{schema}{StageB_4}
+	Value \\
+	StageA_4'
+\where
+	\frac{m-1}{2} \leq i + j - n - m \\
+	i < n + m
+\also
+	x' = x = i - m \\
+	y' = y = j \\
+	\delta = t'(x', y')
+\end{schema}
+
+\section{Virtual Wavefront}
+
+\begin{zed}
+	\forall p:P; j:H; i:W | \\
+	\t1	p = j \mod P \land \\
+	\t1	m - j - 1 \leq i < 2m + n - j - 1 @ \\
+	\t2 StageA_1\,\dot{\lor}\,StageB_1\,\dot{\lor} \\
+	\t2 StageB_2\,\dot{\lor} \\
+	\t2 StageA_3\,\dot{\lor}\,StageB_3\,\dot{\lor} \\
+	\t2 StageA_4\,\dot{\lor}\,StageB_4
+\end{zed}
+
+\end{document}
